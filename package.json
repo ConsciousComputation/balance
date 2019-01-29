@@ -1,0 +1,32 @@
+{
+  "name": "balance",
+  "version": "1.0.0",
+  "description": "Restoring Mental Balance",
+  "main": "truffle-config.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ConsciousComputation/balance.git"
+  },
+  "keywords": [
+    "ethereum",
+    "truffle",
+    "blockchain",
+    "mental",
+    "health"
+  ],
+  "author": "Meredith Finkelstein",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ConsciousComputation/balance/issues"
+  },
+  "homepage": "https://github.com/ConsciousComputation/balance#readme",
+  "dependencies": {
+    "openzeppelin-solidity": "^2.1.2"
+  }
+}
