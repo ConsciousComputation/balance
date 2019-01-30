@@ -9,12 +9,12 @@ contract('BalanceToken', function(accounts) {
       return tokenInstance.name();
     }).then(function(name) {
       assert.equal(name, 'Balance Token', 'has the correct name');
-      return tokenInstance.symbol();
+      return tokenInstance.name();
     }).then(function(symbol) {
-      assert.equal(symbol, 'BLNC', 'has the correct symbol');
-      return tokenInstance.standard();
+      assert.equal(symbol, 'Balance Token', 'has the correct symbol');
+      return tokenInstance.symbol();
     }).then(function(standard) {
-      assert.equal(standard, 'Balance Token v1.0', 'has the correct standard');
+      assert.equal(standard, 'BLNC', 'has the correct standard');
     });
   })
 
@@ -23,10 +23,10 @@ contract('BalanceToken', function(accounts) {
       tokenInstance = instance;
       return tokenInstance.totalSupply();
     }).then(function(totalSupply) {
-      assert.equal(totalSupply.toNumber(), 100000000000, 'sets the total supply to 1,000,000');
+      assert.equal(totalSupply.toNumber(), 100000000, 'sets the total supply to 1,000,000');
       return tokenInstance.balanceOf(accounts[0]);
     }).then(function(adminBalance) {
-      assert.equal(adminBalance.toNumber(), 100000000000, 'it allocates the initial supply to the admin account');
+      assert.equal(adminBalance.toNumber(), 100000000, 'it allocates the initial supply to the admin account');
     });
   });
 
@@ -34,9 +34,9 @@ contract('BalanceToken', function(accounts) {
     return BalanceToken.deployed().then(function(instance) {
       tokenInstance = instance;
       // Test `require` statement first by transferring something larger than the sender's balance
-      return tokenInstance.transfer.call(accounts[1], 99999999999999999999999);
+      return tokenInstance.transfer.call(accounts[1], 99999999999);
     }).then(assert.fail).catch(function(error) {
-      assert(error.message.indexOf('revert') >= 0, 'error message must contain revert');
+      assert(error.message.indexOf('revert') >= 0, 'error message must contain revert'+accounts[0]);
       return tokenInstance.transfer.call(accounts[1], 250000, { from: accounts[0] });
     }).then(function(success) {
       assert.equal(success, true, 'it returns true');
@@ -44,15 +44,15 @@ contract('BalanceToken', function(accounts) {
     }).then(function(receipt) {
       assert.equal(receipt.logs.length, 1, 'triggers one event');
       assert.equal(receipt.logs[0].event, 'Transfer', 'should be the "Transfer" event');
-      assert.equal(receipt.logs[0].args._from, accounts[0], 'logs the account the tokens are transferred from');
-      assert.equal(receipt.logs[0].args._to, accounts[1], 'logs the account the tokens are transferred to');
-      assert.equal(receipt.logs[0].args._value, 250000, 'logs the transfer amount');
+      assert.equal(receipt.logs[0].args.from, accounts[0], 'logs the account the tokens are transferred from');
+      assert.equal(receipt.logs[0].args.to, accounts[1], 'logs the account the tokens are transferred to');
+      assert.equal(receipt.logs[0].args.value, 250000, 'logs the transfer amount');
       return tokenInstance.balanceOf(accounts[1]);
     }).then(function(balance) {
       assert.equal(balance.toNumber(), 250000, 'adds the amount to the receiving account');
       return tokenInstance.balanceOf(accounts[0]);
     }).then(function(balance) {
-      assert.equal(balance.toNumber(), 750000, 'deducts the amount from the sending account');
+      assert.equal(balance.toNumber(), 99750000, 'deducts the amount from the sending account');
     });
   });
 
@@ -66,9 +66,9 @@ contract('BalanceToken', function(accounts) {
     }).then(function(receipt) {
       assert.equal(receipt.logs.length, 1, 'triggers one event');
       assert.equal(receipt.logs[0].event, 'Approval', 'should be the "Approval" event');
-      assert.equal(receipt.logs[0].args._owner, accounts[0], 'logs the account the tokens are authorized by');
-      assert.equal(receipt.logs[0].args._spender, accounts[1], 'logs the account the tokens are authorized to');
-      assert.equal(receipt.logs[0].args._value, 100, 'logs the transfer amount');
+      assert.equal(receipt.logs[0].args.owner, accounts[0], 'logs the account the tokens are authorized by');
+      assert.equal(receipt.logs[0].args.spender, accounts[1], 'logs the account the tokens are authorized to');
+      assert.equal(receipt.logs[0].args.value, 100, 'logs the transfer amount');
       return tokenInstance.allowance(accounts[0], accounts[1]);
     }).then(function(allowance) {
       assert.equal(allowance.toNumber(), 100, 'stores the allowance for delegated trasnfer');
@@ -88,7 +88,7 @@ contract('BalanceToken', function(accounts) {
       return tokenInstance.approve(spendingAccount, 10, { from: fromAccount });
     }).then(function(receipt) {
       // Try transferring something larger than the sender's balance
-      return tokenInstance.transferFrom(fromAccount, toAccount, 9999, { from: spendingAccount });
+      return tokenInstance.transferFrom(fromAccount, toAccount, 9999999, { from: spendingAccount });
     }).then(assert.fail).catch(function(error) {
       assert(error.message.indexOf('revert') >= 0, 'cannot transfer value larger than balance');
       // Try transferring something larger than the approved amount
@@ -102,9 +102,9 @@ contract('BalanceToken', function(accounts) {
     }).then(function(receipt) {
       assert.equal(receipt.logs.length, 1, 'triggers one event');
       assert.equal(receipt.logs[0].event, 'Transfer', 'should be the "Transfer" event');
-      assert.equal(receipt.logs[0].args._from, fromAccount, 'logs the account the tokens are transferred from');
-      assert.equal(receipt.logs[0].args._to, toAccount, 'logs the account the tokens are transferred to');
-      assert.equal(receipt.logs[0].args._value, 10, 'logs the transfer amount');
+      assert.equal(receipt.logs[0].args.from, fromAccount, 'logs the account the tokens are transferred from');
+      assert.equal(receipt.logs[0].args.to, toAccount, 'logs the account the tokens are transferred to');
+      assert.equal(receipt.logs[0].args.value, 10, 'logs the transfer amount');
       return tokenInstance.balanceOf(fromAccount);
     }).then(function(balance) {
       assert.equal(balance.toNumber(), 90, 'deducts the amount from the sending account');
